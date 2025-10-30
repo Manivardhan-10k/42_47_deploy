@@ -1,0 +1,37 @@
+deployment
+
+project hosting 
+
+
+
+local developed code -> 
+
+cloud -> address 
+
+->url
+
+
+
+
+gdrive  
+
+10 members 
+
+
+drive - cloud 
+
+
+
+
+
+development phase 
+
+
+production phase 
+
+
+
+
+AAAS -> architechture as a service
+SAAS -> software  as a service
+PAAS -> platform as a service   aws , azure, render
