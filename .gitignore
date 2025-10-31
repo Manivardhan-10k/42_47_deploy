@@ -139,9 +139,6 @@ credentials.json
 *.key
 *.crt
 
-# --- SQLite (if used locally) ---
-db.sqlite3
-db.sqlite3-journal
 
 # --- VSCode local history ---
 .vscode/
@@ -150,3 +147,7 @@ db.sqlite3-journal
 # --- Render & Build Artifacts ---
 __render_cache__/
 render.yaml
+
+
+
+
