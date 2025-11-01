@@ -9,3 +9,17 @@ def welcome(req):
 
 def  sample(req):
     return JsonResponse ({"msg":"json response from render"})
+
+
+
+
+
+
+# server->render 
+# database -> aiven
+
+# name
+# user
+# password
+# host
+# port
