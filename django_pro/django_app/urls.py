@@ -1,9 +1,12 @@
-from django.urls import path 
+from django.urls import path
 from . import views
 
-
-urlpatterns=[
-    path("welcome/",view=views.welcome),
-    path("sample/",view=views.sample),
-    path("reg_user/",view=views.reg_user)
+urlpatterns = [
+    path('', views.welcome),
+    path('sample/', views.sample),
+    path('register/', views.reg_user),
+    path('users/', views.get_users),
+    path('user/<int:id>/', views.get_user_by_id),
+    path('update/<int:id>/', views.update_user),
+    path('delete/<int:id>/', views.delete_user),
 ]
