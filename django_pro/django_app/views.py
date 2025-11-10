@@ -5,6 +5,7 @@ from .models import CloudTable
 from .serializers import CloudTableSerializer
 import json
 import cloudinary
+import bcrypt
 
 
 
@@ -14,7 +15,6 @@ def welcome(request):
 
 
 def sample(request):
-    """Simple JSON response to test API"""
     return JsonResponse({"msg": "JSON response from Render"})
 
 
@@ -29,12 +29,37 @@ def reg_user(request):
             user_email=request.POST.get("email")
             user_mob=request.POST.get("mob")
             user_image=request.FILES.get("profile")
-            img_url=cloudinary.uploader.upload(user_image)
-            print(img_url["secure_url"])
+            print(user_email,type(user_email))
+            user_email=user_email.encode("utf-8")## to convert str data into byte format
+            print(user_email,type(user_email))
+            ##bcrypt code
+            u_salt=bcrypt.gensalt(rounds=14)   #generate salt     abc123  bcd234  cde345  def456  #4 -32
+            # print(u_salt)
 
-            new_user=CloudTable.objects.create(id=user_id,email=user_email,name=user_name,mob=user_mob,profile_pic=img_url["secure_url"])
-            
-            return JsonResponse({"msg": "User created successfully!","details":list(new_user.values())})
+            encrypted_email=bcrypt.hashpw(password=user_email,salt=u_salt)## 
+            print(encrypted_email,"after hashing" ,type(encrypted_email))
+
+            encrypted_email=encrypted_email.decode("utf-8") ##to convert byte code value into string (for storage)
+            print(encrypted_email,"after hashing",type(encrypted_email))
+
+
+
+            ##checking password
+
+
+
+
+
+
+
+            img_url=cloudinary.uploader.upload(user_image)
+
+            new_user=CloudTable.objects.create(id=user_id,email=encrypted_email,name=user_name,mob=user_mob,profile_pic=img_url["secure_url"])
+            serializer = CloudTableSerializer(new_user)
+            return JsonResponse(
+                {"msg": "User created successfully!", "user": serializer.data},
+                status=201
+            )
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Only POST method allowed"}, status=405)
@@ -140,3 +165,119 @@ def delete_user(request, id):
 # cloudinary 
 # api 
 # secret
+
+
+
+
+# cloudinary 
+# -> to store the media files
+
+
+
+# environment -> to isolate  the dependencies (packages and libraries)
+#project creation -> django-admin startproject pro_name 
+#app creation  -> django-admin startapp app_name   (module or a comp that perform a specific task)
+#
+
+
+
+#CRUD    -user data
+#deployed 
+
+#personal info 
+#name mob email  age    password 
+
+#hacking
+
+
+#sm   app   - share
+# credit calls
+
+
+# data bases
+
+
+
+
+# reg    ->     server      ->  database     mani123     nboj234
+
+
+#encoding
+#encryption
+#hashing
+
+
+#utf-8    unicode transformation format  
+
+
+
+
+# ela unnav     -> english       ->   english  -> hindi
+
+
+
+#encryption 
+
+
+
+
+# secret_key="hi"
+# msg="how are you?"
+# encrypted="how are you"
+
+
+#hashing
+
+# text="good afternoon"
+
+# algorithm="jhsdfhsdghsdjkfhsdjkh"  ##rsa
+
+# ##irreversible 
+# new_text= "good afternoon"  #rsa
+
+
+
+
+#password
+
+
+
+
+
+# brute force
+
+
+
+# 9045
+
+
+#trying all the possibilities 
+
+
+
+# p= 9045
+# s=0000
+# l=9999
+
+
+# for i in range(s,l):
+#     if i==p:
+#         print("your pin is", p)
+
+
+
+#bcrypt
+
+
+# reg_p=123  
+# sfgdh
+
+
+
+# 123  hash  sfgdh
+
+# post data -> field   -> salt(rounds) for complexity   ->  hashpw(value,salt)  ->   store hashed data
+
+
+
+# "$2b$14$Yhz/9ZzqbVKkODG.z4r6ZOIzBCkQaWZNHKrqArstBikyMZf5dyh6u" =="anvesh_bhai@gmail.com"
