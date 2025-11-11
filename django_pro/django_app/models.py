@@ -9,3 +9,4 @@ class CloudTable(models.Model):
     email=models.EmailField(max_length=100,default="user@cloud.com")
     mob=models.CharField(max_length=10, unique=True)
     profile_pic=models.URLField(default="empty")
+    password=models.CharField(max_length=255,default="password")

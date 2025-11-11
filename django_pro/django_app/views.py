@@ -24,45 +24,53 @@ def sample(request):
 def reg_user(request):
     if request.method == "POST":
         try: 
-            user_id=request.POST.get("id")
-            user_name=request.POST.get("name")
-            user_email=request.POST.get("email")
-            user_mob=request.POST.get("mob")
-            user_image=request.FILES.get("profile")
-            print(user_email,type(user_email))
-            user_email=user_email.encode("utf-8")## to convert str data into byte format
-            print(user_email,type(user_email))
-            ##bcrypt code
-            u_salt=bcrypt.gensalt(rounds=14)   #generate salt     abc123  bcd234  cde345  def456  #4 -32
-            # print(u_salt)
+            user_name = request.POST.get("name")
+            user_email = request.POST.get("email")
+            user_mob = request.POST.get("mob")
+            user_password = request.POST.get("password")
+            user_image = request.FILES.get("profile")
 
-            encrypted_email=bcrypt.hashpw(password=user_email,salt=u_salt)## 
-            print(encrypted_email,"after hashing" ,type(encrypted_email))
+            # ✅ Basic validation
+            if not all([user_name, user_email, user_password]):
+                return JsonResponse({"error": "name, email, and password are required"}, status=400)
 
-            encrypted_email=encrypted_email.decode("utf-8") ##to convert byte code value into string (for storage)
-            print(encrypted_email,"after hashing",type(encrypted_email))
+            # ✅ Password hashing
+            user_password = user_password.encode("utf-8")
+            u_salt = bcrypt.gensalt(rounds=14)
+            encrypted_pass = bcrypt.hashpw(password=user_password, salt=u_salt).decode("utf-8")
 
+            # ✅ Upload image to Cloudinary inside users_folder/
+            img_url = None
+            if user_image:
+                upload_result = cloudinary.uploader.upload(
+                    user_image,
+                    folder="user_profile_pic",  # 👈 All images go here
+                    use_filename=True,      # keeps original filename
+                    unique_filename=True,   # adds unique ID if name repeats
+                    overwrite=False
+                )
+                img_url = upload_result.get("secure_url")
 
+            # ✅ Create user (AutoField id)
+            new_user = CloudTable.objects.create(
+                email=user_email,
+                name=user_name,
+                mob=user_mob,
+                profile_pic=img_url,
+                password=encrypted_pass
+            )
 
-            ##checking password
-
-
-
-
-
-
-
-            img_url=cloudinary.uploader.upload(user_image)
-
-            new_user=CloudTable.objects.create(id=user_id,email=encrypted_email,name=user_name,mob=user_mob,profile_pic=img_url["secure_url"])
             serializer = CloudTableSerializer(new_user)
             return JsonResponse(
                 {"msg": "User created successfully!", "user": serializer.data},
                 status=201
             )
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
     return JsonResponse({"error": "Only POST method allowed"}, status=405)
+
 
 
 def get_users(request):
@@ -89,19 +97,62 @@ def update_user(request, id):
     if request.method == "PUT":
         try:
             user = CloudTable.objects.get(id=id)
-            data = json.loads(request.body)
 
+            # Check if content type is multipart (for files) or JSON
+            if request.content_type.startswith("multipart/form-data"):
+                data = request.POST
+                new_image = request.FILES.get("profile")
+            else:
+                data = json.loads(request.body)
+                new_image = None
+
+            # ✅ Update basic fields
             user.name = data.get("name", user.name)
             user.email = data.get("email", user.email)
             user.mob = data.get("mob", user.mob)
+
+            # ✅ Update password (hash it again if provided)
+            new_password = data.get("password")
+            if new_password:
+                hashed_pass = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt(14)).decode("utf-8")
+                user.password = hashed_pass
+
+            # ✅ Replace image: delete old one and upload new
+            if new_image:
+                # If user already has an image, delete it from Cloudinary
+                if user.profile_pic:
+                    try:
+                        # Extract public_id from the URL using regex
+                        match = re.search(r"users_folder/([^\.]+)", user.profile_pic)
+                        if match:
+                            public_id = f"users_folder/{match.group(1)}"
+                            cloudinary.uploader.destroy(public_id)
+                    except Exception as e:
+                        print("Warning: Failed to delete old image:", str(e))
+
+                # Upload new image
+                upload_result = cloudinary.uploader.upload(
+                    new_image,
+                    folder="users_folder",
+                    use_filename=True,
+                    unique_filename=True,
+                    overwrite=True
+                )
+                user.profile_pic = upload_result.get("secure_url")
+
             user.save()
 
             serializer = CloudTableSerializer(user)
-            return JsonResponse({"msg": "User updated successfully", "user": serializer.data})
+            return JsonResponse(
+                {"msg": "User updated successfully", "user": serializer.data},
+                status=200
+            )
+
         except CloudTable.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
     return JsonResponse({"error": "Only PUT method allowed"}, status=405)
 
 
@@ -115,6 +166,24 @@ def delete_user(request, id):
         except CloudTable.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
     return JsonResponse({"error": "Only DELETE method allowed"}, status=405)
+
+
+
+
+def login_user(req):
+    user_data=json.loads(req.body)
+    user=CloudTable.objects.get(id=user_data["id"])
+    serialized_Data=CloudTableSerializer(user)
+    # print(serialized_Data.data)
+    encrypted_pass=serialized_Data.data["password"]
+    user_pass=user_data["password"]
+    is_same=bcrypt.checkpw(user_pass.encode("utf-8"),encrypted_pass.encode("utf-8"))
+    if is_same:
+        return HttpResponse(f'welcome to the app {serialized_Data.data["name"]}')
+    else:
+        return HttpResponse("invalid credentials")
+
+
 
 
 
@@ -281,3 +350,17 @@ def delete_user(request, id):
 
 
 # "$2b$14$Yhz/9ZzqbVKkODG.z4r6ZOIzBCkQaWZNHKrqArstBikyMZf5dyh6u" =="anvesh_bhai@gmail.com"
+
+
+
+# hashing
+
+# database compromise
+
+# login  
+# username 
+# password  -> hash -> store
+
+# bcrypt
+# gensalt-> 
+# hashpw
