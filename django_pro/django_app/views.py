@@ -9,6 +9,8 @@ import bcrypt
 import re
 import jwt
 import datetime
+from django.conf import settings  
+SECRETKEY = settings.SECRET_KEY  
 
 
 def welcome(request):
@@ -125,9 +127,9 @@ def update_user(request, id):
                 if user.profile_pic:
                     try:
                         # Extract public_id from the URL using regex
-                        match = re.search(r"users_folder/([^\.]+)", user.profile_pic)
+                        match = re.search(r"user_profile_pic/([^\.]+)", user.profile_pic)
                         if match:
-                            public_id = f"users_folder/{match.group(1)}"
+                            public_id = f"user_profile_pic/{match.group(1)}"
                             cloudinary.uploader.destroy(public_id)
                     except Exception as e:
                         print("Warning: Failed to delete old image:", str(e))
@@ -181,21 +183,17 @@ def login_user(req):
     user_pass=user_data["password"]
     is_same=bcrypt.checkpw(user_pass.encode("utf-8"),encrypted_pass.encode("utf-8"))
     ##creating jwt 
-    # user_payload={
-    #     "name":serialized_Data.data["name"],
-    #     "email":serialized_Data.data["email"],
-    #     "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=1),
-    #     "iat": datetime.datetime.utcnow()
-    # }
+    user_payload={
+        "name":serialized_Data.data["name"],
+        "email":serialized_Data.data["email"],
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=1),
+        "iat": datetime.datetime.utcnow()
+    }
 
-    # token=jwt.encode(payload=user_payload,key='django-insecure-90im)of3k!k$y*2l&h8mai2%qrfia6rly2%ew%30!k5v&p=ci8',algorithm="HS256")
+    token=jwt.encode(payload=user_payload,key=SECRETKEY,algorithm="HS256")
     # print(token)
-
-
-
-
     if is_same:
-        return HttpResponse(f'welcome to the app {serialized_Data.data["name"]}')
+        return HttpResponse(token)
     else:
         return HttpResponse("invalid credentials")
   
