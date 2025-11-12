@@ -6,7 +6,9 @@ from .serializers import CloudTableSerializer
 import json
 import cloudinary
 import bcrypt
-
+import re
+import jwt
+import datetime
 
 
 def welcome(request):
@@ -178,10 +180,27 @@ def login_user(req):
     encrypted_pass=serialized_Data.data["password"]
     user_pass=user_data["password"]
     is_same=bcrypt.checkpw(user_pass.encode("utf-8"),encrypted_pass.encode("utf-8"))
+    ##creating jwt 
+    # user_payload={
+    #     "name":serialized_Data.data["name"],
+    #     "email":serialized_Data.data["email"],
+    #     "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=1),
+    #     "iat": datetime.datetime.utcnow()
+    # }
+
+    # token=jwt.encode(payload=user_payload,key='django-insecure-90im)of3k!k$y*2l&h8mai2%qrfia6rly2%ew%30!k5v&p=ci8',algorithm="HS256")
+    # print(token)
+
+
+
+
     if is_same:
         return HttpResponse(f'welcome to the app {serialized_Data.data["name"]}')
     else:
         return HttpResponse("invalid credentials")
+  
+
+
 
 
 
@@ -364,3 +383,68 @@ def login_user(req):
 # bcrypt
 # gensalt-> 
 # hashpw
+
+
+
+
+
+
+
+
+# hashpw     -> hashed
+# checkpw    -> hashed , user pass
+# encode("utf-8")
+
+
+# login 
+# homepage
+
+
+
+# about
+# categories
+# my account 
+# contact
+
+
+
+# local storage
+# session storage
+
+
+
+
+
+# session storage {"logged":true}
+
+
+# tokens 
+# entry token - qr  code  
+                # token
+# food token
+
+
+
+#authentication-> identity   -> who u are
+#authorization  -> what u can do
+
+
+
+# employee
+
+# dev
+# test
+# hr 
+# manager 
+# devops
+
+# hash-> irreversible 
+#  encoding ->reversible
+
+
+# jwt -> encode  -> payload   key   algorithm-HS256   -> encoded string   
+#     -> decode -> string     key   algorithm-256     -> payload
+
+
+
+# login > jwt token with user details > copy the token and verify in JWT.io
