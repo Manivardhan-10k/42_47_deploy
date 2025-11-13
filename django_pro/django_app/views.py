@@ -182,18 +182,30 @@ def login_user(req):
     encrypted_pass=serialized_Data.data["password"]
     user_pass=user_data["password"]
     is_same=bcrypt.checkpw(user_pass.encode("utf-8"),encrypted_pass.encode("utf-8"))
+
+
     ##creating jwt 
     user_payload={
         "name":serialized_Data.data["name"],
         "email":serialized_Data.data["email"],
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=1),
+        # "name":"jhonny",
+        # "email":"pavan@dcm.com",
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
         "iat": datetime.datetime.utcnow()
     }
 
     token=jwt.encode(payload=user_payload,key=SECRETKEY,algorithm="HS256")
     # print(token)
     if is_same:
-        return HttpResponse(token)
+     res=HttpResponse("cookie is set in the browser")
+     res.set_cookie(
+            key="my_first_cookie",  # cookie name
+            value=token, ## what data to be stored (string)
+            httponly=True, ## to allow js to access the cookie
+            max_age=3  ## till when the cookie is valid
+        )
+     return res
+
     else:
         return HttpResponse("invalid credentials")
   
@@ -446,3 +458,58 @@ def login_user(req):
 
 
 # login > jwt token with user details > copy the token and verify in JWT.io
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# token: piece of data  exchanged btw client and server
+# -> generate token 
+
+# JWT -> JSON web token 
+
+# payload  data 
+# key     security 
+# algo    process
+
+# jwt.encode(payload="",key="",algorithm="HS256")
+# jwt.decode (token,key="",algorithms="HS256")
+
+
+# server side -> token
+
+# req->
+
+# local 
+# session
+
+# cookie  ->
+
+
+
+# cookies: is a type of storage to store tokens and other data
+
+# why?
+# it helps in two way communication from both  FE and BE
+
+
+# create res 
+# res.set_cookie(
+#     key=name 
+#     value=data,
+#     httponly=True  # js cant access 
+#     maxage=60  #life time of a cookie
+# )
+# return res
