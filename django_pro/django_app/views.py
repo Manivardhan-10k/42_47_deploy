@@ -23,6 +23,15 @@ def sample(request):
 
 
 
+def is_valid_user(request):
+    try:
+      cookie_token=request.COOKIES.get("my_first_cookie")
+      data=jwt.decode(jwt=cookie_token,key=SECRETKEY,algorithms=["HS256"])
+      return data
+    except:
+        return False
+
+
 
 @csrf_exempt
 def reg_user(request):
@@ -78,11 +87,17 @@ def reg_user(request):
 
 
 def get_users(request):
-    if request.method == "GET":
+  if request.method == "GET":
+    if is_valid_user(request)["valid_user"]:
         users = CloudTable.objects.all()
         serializer = CloudTableSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
-    return JsonResponse({"error": "Only GET method allowed"}, status=405)
+    else:
+        res=HttpResponse("invalid user")
+        res.delete_cookie("my_first_cookie")
+        return res
+  else:
+   return JsonResponse({"error": "Only GET method allowed"}, status=405)
 
 
 def get_user_by_id(request, id):
@@ -188,6 +203,8 @@ def login_user(req):
     user_payload={
         "name":serialized_Data.data["name"],
         "email":serialized_Data.data["email"],
+        "valid_user":False,
+        "user_id":serialized_Data.data["id"],
         # "name":"jhonny",
         # "email":"pavan@dcm.com",
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
@@ -202,7 +219,7 @@ def login_user(req):
             key="my_first_cookie",  # cookie name
             value=token, ## what data to be stored (string)
             httponly=True, ## to allow js to access the cookie
-            max_age=3  ## till when the cookie is valid
+            max_age=300  ## till when the cookie is valid given in seconds
         )
      return res
 
@@ -513,3 +530,19 @@ def login_user(req):
 #     maxage=60  #life time of a cookie
 # )
 # return res
+
+
+
+#cookies 
+
+#type of storage 
+# usedata
+# is session active
+# analysis
+
+
+
+# res .
+# res.set_cookie(
+    
+# )
