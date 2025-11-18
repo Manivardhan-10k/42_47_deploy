@@ -1,19 +1,4 @@
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from .models import CloudTable
-from .serializers import CloudTableSerializer
-import json
-import cloudinary
-import bcrypt
-import re
-import jwt
-import datetime
-from django.conf import settings  
-SECRETKEY = settings.SECRET_KEY  
-
-
-from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .models import CloudTable
@@ -26,7 +11,11 @@ import jwt
 import datetime
 import re
 from django.conf import settings
+from django.core.mail import send_mail,EmailMessage
 SECRET_KEY=settings.SECRET_KEY
+
+
+
 
 # ------------------------ BASIC ROUTES ------------------------
 
@@ -94,6 +83,10 @@ def reg_user(request):
             )
 
             serializer = CloudTableSerializer(new_user)
+            send_mail(subject="welcome mail",
+                      message="Welcome to the app!!",
+                      recipient_list=[user_email],
+                      from_email=settings.EMAIL_HOST_USER)
             return JsonResponse(
                 {"msg": "User created successfully!", "user": serializer.data},
                 status=201
@@ -229,6 +222,7 @@ def login_user(req):
         return HttpResponse("User not found", status=404)
 
     serialized = CloudTableSerializer(user).data
+
     encrypted_pass = serialized["password"]
     user_pass = user_data["password"]
 
@@ -259,6 +253,24 @@ def login_user(req):
 
     return res
 
+@csrf_exempt
+def send_file(req):
+    user_email=req.POST.get("user")
+    pic=req.POST.get("file")
+    email=EmailMessage(
+        subject="sending file",
+        body='this is the file',
+        from_email=settings.EMAIL_HOST_USER,
+        to=[user_email]
+    )
+    email.attach_file("C:/Users/ravig/Pictures/Nitro/Nitro_Wallpaper_5000x2813.jpg")
+    email.send()
+    return HttpResponse("mail sent successfully!")
+
+
+
+
+#documentation
   
 
 
@@ -580,3 +592,21 @@ def login_user(req):
 # res.set_cookie(
     
 # )
+
+
+# message
+
+# otp
+# TRAI - Telephone Regualtory Authority of India
+# app -reg 
+# protocols
+# procedure
+# persmissions
+
+
+
+# email- smtp 
+# Simple  Mail Transfer Protocol
+# receipents mail 
+# senders mail
+# content 

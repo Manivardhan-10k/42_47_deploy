@@ -1,0 +1,27 @@
+server
+api
+views
+models -> serializers
+file handling
+hashing
+
+
+-----------
+deployment
+-----------
+CRUD:
+
+
+
+token:  a piece of code containing values
+
+
+cookie : is  a type of webstorage accessed by both server and client
+values like user preferences , analytics and state info
+
+
+
+key="name"
+value=""
+maxage=300
+httponly=True
