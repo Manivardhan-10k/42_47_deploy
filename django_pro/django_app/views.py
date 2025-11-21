@@ -1,3 +1,4 @@
+from django import middleware
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -212,60 +213,60 @@ def delete_user(request, id):
 
 # ------------------------ LOGIN USER ------------------------
 
-@csrf_exempt
-def login_user(req):
-    user_data = json.loads(req.body)
+# @csrf_exempt
+# def login_user(req):
+#     user_data = json.loads(req.body)
 
-    try:
-        user = CloudTable.objects.get(id=user_data["id"])
-    except CloudTable.DoesNotExist:
-        return HttpResponse("User not found", status=404)
+#     try:
+#         user = CloudTable.objects.get(id=user_data["id"])
+#     except CloudTable.DoesNotExist:
+#         return HttpResponse("User not found", status=404)
 
-    serialized = CloudTableSerializer(user).data
+#     serialized = CloudTableSerializer(user).data
 
-    encrypted_pass = serialized["password"]
-    user_pass = user_data["password"]
+#     encrypted_pass = serialized["password"]
+#     user_pass = user_data["password"]
 
-    is_same = bcrypt.checkpw(user_pass.encode("utf-8"), encrypted_pass.encode("utf-8"))
+#     is_same = bcrypt.checkpw(user_pass.encode("utf-8"), encrypted_pass.encode("utf-8"))
 
-    if not is_same:
-        return HttpResponse("invalid credentials", status=401)
+#     if not is_same:
+#         return HttpResponse("invalid credentials", status=401)
 
-    # JWT payload
-    payload = {
-        "name": serialized["name"],
-        "email": serialized["email"],
-        "valid_user": True,
-        "user_id": serialized["id"],
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
-        "iat": datetime.datetime.utcnow()
-    }
+#     # JWT payload
+#     payload = {
+#         "name": serialized["name"],
+#         "email": serialized["email"],
+#         "valid_user": True,
+#         "user_id": serialized["id"],
+#         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+#         "iat": datetime.datetime.utcnow()
+#     }
 
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+#     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-    res = HttpResponse("cookie is set in the browser")
-    res.set_cookie(
-        key="my_first_cookie",
-        value=token,
-        httponly=True,       # JS cannot access
-        max_age=1800         # 30 minutes
-    )
+#     res = HttpResponse("cookie is set in the browser")
+#     res.set_cookie(
+#         key="my_first_cookie",
+#         value=token,
+#         httponly=True,       # JS cannot access
+#         max_age=1800         # 30 minutes
+#     )
 
-    return res
+#     return res
 
-@csrf_exempt
-def send_file(req):
-    user_email=req.POST.get("user")
-    pic=req.POST.get("file")
-    email=EmailMessage(
-        subject="sending file",
-        body='this is the file',
-        from_email=settings.EMAIL_HOST_USER,
-        to=[user_email]
-    )
-    email.attach_file("C:/Users/ravig/Pictures/Nitro/Nitro_Wallpaper_5000x2813.jpg")
-    email.send()
-    return HttpResponse("mail sent successfully!")
+# @csrf_exempt
+# def send_file(req):
+#     user_email=req.POST.get("user")
+#     pic=req.POST.get("file")
+#     email=EmailMessage(
+#         subject="sending file",
+#         body='this is the file',
+#         from_email=settings.EMAIL_HOST_USER,
+#         to=[user_email]
+#     )
+#     email.attach_file("C:/Users/ravig/Pictures/Nitro/Nitro_Wallpaper_5000x2813.jpg")
+#     email.send()
+#     return HttpResponse("mail sent successfully!")
 
 
 
@@ -610,3 +611,27 @@ def send_file(req):
 # receipents mail 
 # senders mail
 # content 
+
+#send mail 
+#attachments 
+
+
+#configure 
+
+# send_mail()
+# email=emailMessage()
+#eamil.attach("c:folder/file.name")
+
+
+# e-commerce.com -> resposne cookie 1800
+# 30 *min -> req
+
+
+# middleware  
+
+
+# client    -> api  (req  token  post,  json name)   -> server    views() 
+
+
+# csrf 
+# @csrf_exempt

@@ -53,6 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_app.middleware.SampleMiddleware',
+    'django_app.middleware.LastMiddleware',
 ]
 
 ROOT_URLCONF = 'django_pro.urls'
@@ -153,3 +155,8 @@ EMAIL_HOST_USER = "manivardhan.10kcoders@gmail.com"
 EMAIL_HOST_PASSWORD = "soem ouza jlms iske" ##app password from google
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+
+
+
+# home    ->          hall ticket         -> exam hall ticket
