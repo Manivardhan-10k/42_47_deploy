@@ -1,0 +1,24 @@
+{% extends "sample.html"%}
+
+{%block content%}
+
+
+
+{% comment %} {% for name in names %}
+    {% if name == "balaji"%}
+       <h6>{{name}}</h6>
+    {%else%}
+       <h2>{{name}}</h2> 
+    {% endif %}
+{% endfor %} {% endcomment %}
+
+{% comment %} <a href="/inherit" > REDIRECT </a> {% endcomment %}
+
+
+{%if "balu" in names%}
+      <a href="/var">  Redirect <a/>
+     {%else%}
+       <p>not valid<p/>
+    {%endif%}
+{%endblock%}
+

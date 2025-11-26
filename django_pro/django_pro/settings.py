@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
 
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -53,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_app.middleware.SampleMiddleware',
-    'django_app.middleware.LastMiddleware',
+    # 'django_app.middleware.SampleMiddleware',
+    # 'django_app.middleware.LastMiddleware',
 ]
 
 ROOT_URLCONF = 'django_pro.urls'
@@ -62,7 +62,7 @@ ROOT_URLCONF = 'django_pro.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

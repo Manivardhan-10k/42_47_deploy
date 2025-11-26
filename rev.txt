@@ -25,3 +25,209 @@ key="name"
 value=""
 maxage=300
 httponly=True
+
+
+
+
+
+middleware:
+its  piece of code , that executes before the req reaches the view 
+
+
+client   ->     api  (middleware)            -> view
+
+
+CSRF 
+
+built in middleware /default  
+
+
+custom middlewares
+
+
+
+class middleware_name:
+    def __init__(self,get_response):     ## only when the server is started
+        self.get_response=get_response()
+    
+
+    def __call__(self,req):
+
+      ## perform validations
+           
+
+
+each middleware is applied thoughout the application
+
+
+
+
+csrf 
+
+
+decorators
+
+local / specific to a particular view
+
+
+
+
+
+
+middleware:
+to perfrom  a global validation
+note: we should not perform complex validations 
+
+
+
+decorators:
+to add functionality for specific views 
+
+
+
+
+write a middleware to check whether the cookie is present or not
+
+
+write  a decorator to validate the cookie 
+
+
+
+
+
+form the front-end 
+CORS   -> Cross Origin Resource Sharing 
+
+headers 
+
+head 
+allow cors
+cors-headers
+body 
+
+
+custom 
+built in
+third party
+
+
+
+
+templates:
+structure 
+
+
+
+html 
+
+
+framework 
+
+M - models
+V-  views
+T - templates
+
+
+
+settings.py  
+
+templates =[
+    dir=[os.path.join()]
+]
+
+we create html files
+
+
+return render(request,"./template.html")
+
+
+
+
+template inheritance 
+
+
+base
+head +body
+
+
+tempalate -> base
+
+
+
+
+50 name -> 50 tags 
+DOM 
+
+[]
+
+for name in arr: 
+ name
+
+ {{ }}
+
+
+
+ about self 
+
+ name 
+ hobbies
+ skills
+
+
+ request, "template", context :data
+
+
+
+
+
+
+
+
+
+
+
+
+ templates: 
+
+ M
+ V
+ T -- for providing structure
+
+
+ M
+ V   -html
+ C    logic
+
+
+
+
+
+ models: tables in db 
+
+
+
+ user.objects.
+
+
+ db 
+
+ not in django
+
+
+
+ to get existing table schema into the django
+
+
+
+
+
+
+ templates 
+
+ existing tables 
+ operations
+ sql injection  - malware/malicious code
+ placeholder %s  ,[1,2,3,4,5]
+ aggregations
+ import django.db.models import  Count,Sum,Min,Max,Avg
+raw()

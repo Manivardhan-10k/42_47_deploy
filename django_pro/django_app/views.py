@@ -1,8 +1,10 @@
+from operator import countOf
+from os import name
 from django import middleware
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from .models import CloudTable
+from .models import DjangoAppCloudtable , Employees
 from .serializers import CloudTableSerializer
 import json
 import cloudinary
@@ -13,205 +15,220 @@ import datetime
 import re
 from django.conf import settings
 from django.core.mail import send_mail,EmailMessage
+from .helpers import sample_decorator
 SECRET_KEY=settings.SECRET_KEY
 
+
+from django.db.models  import Sum,Count,Min ,Max,Avg
 
 
 
 # ------------------------ BASIC ROUTES ------------------------
+# @sample_decorator
+# def welcome(request):
+#     res= HttpResponse("Welcome to Mani's app deployed on Render")
+#     print("from the view")
+#     return res
 
-def welcome(request):
-    return HttpResponse("Welcome to Mani's app deployed on Render")
-
-
-def sample(request):
-    return JsonResponse({"msg": "JSON response from Render"})
-
-
-# ------------------------ JWT VALIDATOR ------------------------
-
-def is_valid_user(request):
-    try:
-        cookie_token = request.COOKIES.get("my_first_cookie")
-        if not cookie_token:
-            return False
-
-        data = jwt.decode(jwt=cookie_token, key=SECRET_KEY, algorithms=["HS256"])
-        return data      # return decoded payload
-
-    except Exception:
-        return False
+# def welcome(req):
+#     # return HttpResponse("hello")
+#     return render(req,"./sample.html")
 
 
-# ------------------------ REGISTER USER ------------------------
+# @csrf_exempt
+# def sample(request):
+#     # print(request.COOKIES.get("name"),"from the view")
+#     # return JsonResponse({"msg":"welcome to app"})
 
-@csrf_exempt
-def reg_user(request):
-    if request.method == "POST":
-        try:
-            user_name = request.POST.get("name")
-            user_email = request.POST.get("email")
-            user_mob = request.POST.get("mob")
-            user_password = request.POST.get("password")
-            user_image = request.FILES.get("profile")
-
-            if not all([user_name, user_email, user_password]):
-                return JsonResponse({"error": "name, email, and password are required"}, status=400)
-
-            # Hash password
-            encrypted_pass = bcrypt.hashpw(
-                user_password.encode("utf-8"),
-                bcrypt.gensalt(14)
-            ).decode("utf-8")
-
-            img_url = None
-            if user_image:
-                upload_result = cloudinary.uploader.upload(
-                    user_image,
-                    folder="user_profile_pic",
-                    use_filename=True,
-                    unique_filename=True,
-                    overwrite=False
-                )
-                img_url = upload_result.get("secure_url")
-
-            new_user = CloudTable.objects.create(
-                email=user_email,
-                name=user_name,
-                mob=user_mob,
-                profile_pic=img_url,
-                password=encrypted_pass
-            )
-
-            serializer = CloudTableSerializer(new_user)
-            send_mail(subject="welcome mail",
-                      message="Welcome to the app!!",
-                      recipient_list=[user_email],
-                      from_email=settings.EMAIL_HOST_USER)
-            return JsonResponse(
-                {"msg": "User created successfully!", "user": serializer.data},
-                status=201
-            )
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Only POST method allowed"}, status=405)
+#     name=request.POST.get("name")
+#     print(name)
+#     return render(request,"./basic.html",{"val":name})
 
 
-# ------------------------ GET ALL USERS ------------------------
+# # ------------------------ JWT VALIDATOR ------------------------
 
-def get_users(request):
-    if request.method == "GET":
-        user = is_valid_user(request)
+# def is_valid_user(request):
+#     try:
+#         cookie_token = request.COOKIES.get("my_first_cookie")
+#         if not cookie_token:
+#             return False
 
-        if user and user.get("valid_user"):
-            users = CloudTable.objects.all()
-            serializer = CloudTableSerializer(users, many=True)
-            return JsonResponse(serializer.data, safe=False)
+#         data = jwt.decode(jwt=cookie_token, key=SECRET_KEY, algorithms=["HS256"])
+#         return data      # return decoded payload
 
-        res = HttpResponse("invalid user")
-        res.delete_cookie("my_first_cookie")
-        return res
-
-    return JsonResponse({"error": "Only GET method allowed"}, status=405)
+#     except Exception:
+#         return False
 
 
-# ------------------------ GET USER BY ID ------------------------
+# # ------------------------ REGISTER USER ------------------------
 
-def get_user_by_id(request, id):
-    if request.method == "GET":
-        try:
-            user = CloudTable.objects.get(id=id)
-            serializer = CloudTableSerializer(user)
-            return JsonResponse(serializer.data, safe=False)
-        except CloudTable.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
+# @csrf_exempt
+# def reg_user(request):
+#     if request.method == "POST":
+#         try:
+#             user_name = request.POST.get("name")
+#             user_email = request.POST.get("email")
+#             user_mob = request.POST.get("mob")
+#             user_password = request.POST.get("password")
+#             user_image = request.FILES.get("profile")
 
-    return JsonResponse({"error": "Only GET method allowed"}, status=405)
+#             if not all([user_name, user_email, user_password]):
+#                 return JsonResponse({"error": "name, email, and password are required"}, status=400)
 
+#             # Hash password
+#             encrypted_pass = bcrypt.hashpw(
+#                 user_password.encode("utf-8"),
+#                 bcrypt.gensalt(14)
+#             ).decode("utf-8")
 
-# ------------------------ UPDATE USER ------------------------
+#             img_url = None
+#             if user_image:
+#                 upload_result = cloudinary.uploader.upload(
+#                     user_image,
+#                     folder="user_profile_pic",
+#                     use_filename=True,
+#                     unique_filename=True,
+#                     overwrite=False
+#                 )
+#                 img_url = upload_result.get("secure_url")
 
-@csrf_exempt
-def update_user(request, id):
-    if request.method == "PUT":
-        try:
-            user = CloudTable.objects.get(id=id)
+#             new_user = CloudTable.objects.create(
+#                 email=user_email,
+#                 name=user_name,
+#                 mob=user_mob,
+#                 profile_pic=img_url,
+#                 password=encrypted_pass
+#             )
 
-            # Multipart or JSON
-            if request.content_type.startswith("multipart/form-data"):
-                data = request.POST
-                new_image = request.FILES.get("profile")
-            else:
-                data = json.loads(request.body)
-                new_image = None
+#             serializer = CloudTableSerializer(new_user)
+#             send_mail(subject="welcome mail",
+#                       message="Welcome to the app!!",
+#                       recipient_list=[user_email],
+#                       from_email=settings.EMAIL_HOST_USER)
+#             return JsonResponse(
+#                 {"msg": "User created successfully!", "user": serializer.data},
+#                 status=201
+#             )
 
-            user.name = data.get("name", user.name)
-            user.email = data.get("email", user.email)
-            user.mob = data.get("mob", user.mob)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=400)
 
-            # Password update
-            new_password = data.get("password")
-            if new_password:
-                hashed_pass = bcrypt.hashpw(
-                    new_password.encode("utf-8"),
-                    bcrypt.gensalt(14)
-                ).decode("utf-8")
-                user.password = hashed_pass
-
-            # Replace image
-            if new_image:
-                if user.profile_pic:
-                    try:
-                        match = re.search(r"user_profile_pic/([^\.]+)", user.profile_pic)
-                        if match:
-                            public_id = f"user_profile_pic/{match.group(1)}"
-                            cloudinary.uploader.destroy(public_id)
-                    except:
-                        pass
-
-                upload_result = cloudinary.uploader.upload(
-                    new_image,
-                    folder="user_profile_pic",
-                    use_filename=True,
-                    unique_filename=True,
-                    overwrite=True
-                )
-                user.profile_pic = upload_result.get("secure_url")
-
-            user.save()
-            serializer = CloudTableSerializer(user)
-
-            return JsonResponse(
-                {"msg": "User updated successfully", "user": serializer.data},
-                status=200
-            )
-
-        except CloudTable.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Only PUT method allowed"}, status=405)
+#     return JsonResponse({"error": "Only POST method allowed"}, status=405)
 
 
-# ------------------------ DELETE USER ------------------------
+# # ------------------------ GET ALL USERS ------------------------
 
-@csrf_exempt
-def delete_user(request, id):
-    if request.method == "DELETE":
-        try:
-            user = CloudTable.objects.get(id=id)
-            user.delete()
-            return JsonResponse({"msg": "User deleted successfully"})
-        except CloudTable.DoesNotExist:
-            return JsonResponse({"error": "User not found"}, status=404)
+# def get_users(request):
+#     if request.method == "GET":
+#         user = is_valid_user(request)
 
-    return JsonResponse({"error": "Only DELETE method allowed"}, status=405)
+#         if user and user.get("valid_user"):
+#             users = CloudTable.objects.all()
+#             serializer = CloudTableSerializer(users, many=True)
+#             return JsonResponse(serializer.data, safe=False)
+
+#         res = HttpResponse("invalid user")
+#         res.delete_cookie("my_first_cookie")
+#         return res
+
+#     return JsonResponse({"error": "Only GET method allowed"}, status=405)
 
 
-# ------------------------ LOGIN USER ------------------------
+# # ------------------------ GET USER BY ID ------------------------
+
+# def get_user_by_id(request, id):
+#     if request.method == "GET":
+#         try:
+#             user = CloudTable.objects.get(id=id)
+#             serializer = CloudTableSerializer(user)
+#             return JsonResponse(serializer.data, safe=False)
+#         except CloudTable.DoesNotExist:
+#             return JsonResponse({"error": "User not found"}, status=404)
+
+#     return JsonResponse({"error": "Only GET method allowed"}, status=405)
+
+
+# # ------------------------ UPDATE USER ------------------------
+
+# @csrf_exempt
+# def update_user(request, id):
+#     if request.method == "PUT":
+#         try:
+#             user = CloudTable.objects.get(id=id)
+
+#             # Multipart or JSON
+#             if request.content_type.startswith("multipart/form-data"):
+#                 data = request.POST
+#                 new_image = request.FILES.get("profile")
+#             else:
+#                 data = json.loads(request.body)
+#                 new_image = None
+
+#             user.name = data.get("name", user.name)
+#             user.email = data.get("email", user.email)
+#             user.mob = data.get("mob", user.mob)
+
+#             # Password update
+#             new_password = data.get("password")
+#             if new_password:
+#                 hashed_pass = bcrypt.hashpw(
+#                     new_password.encode("utf-8"),
+#                     bcrypt.gensalt(14)
+#                 ).decode("utf-8")
+#                 user.password = hashed_pass
+
+#             # Replace image
+#             if new_image:
+#                 if user.profile_pic:
+#                     try:
+#                         match = re.search(r"user_profile_pic/([^\.]+)", user.profile_pic)
+#                         if match:
+#                             public_id = f"user_profile_pic/{match.group(1)}"
+#                             cloudinary.uploader.destroy(public_id)
+#                     except:
+#                         pass
+
+#                 upload_result = cloudinary.uploader.upload(
+#                     new_image,
+#                     folder="user_profile_pic",
+#                     use_filename=True,
+#                     unique_filename=True,
+#                     overwrite=True
+#                 )
+#                 user.profile_pic = upload_result.get("secure_url")
+
+#             user.save()
+#             serializer = CloudTableSerializer(user)
+
+#             return JsonResponse(
+#                 {"msg": "User updated successfully", "user": serializer.data},
+#                 status=200
+#             )
+
+#         except CloudTable.DoesNotExist:
+#             return JsonResponse({"error": "User not found"}, status=404)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=400)
+
+#     return JsonResponse({"error": "Only PUT method allowed"}, status=405)
+
+
+# # ------------------------ DELETE USER ------------------------
+
+# @csrf_exempt
+# def delete_user(request, id):
+#     if request.method == "DELETE":
+#         try:
+#             user = CloudTable.objects.get(id=id)
+#             user.delete()
+#             return JsonResponse({"msg": "User deleted successfully"})
+#         except CloudTable.DoesNotExist:
+#             return JsonResponse({"error": "User not found"}, status=404)
+
+#     return JsonResponse({"error": "Only DELETE method allowed"}, status=405)
+
+
+# # ------------------------ LOGIN USER ------------------------
 
 # @csrf_exempt
 # def login_user(req):
@@ -270,14 +287,53 @@ def delete_user(request, id):
 
 
 
+# ###templates
+# def sample_template(req):
+#     return render(req,"./sample.html")
 
-#documentation
+
+
+# def var_sample(req):
+#     data={"name":"balaji"}
+#     return render(req,"./basic.html",context={"val":data})
+
+
+
+# def sample_inherit(req):
+#     return render(req,"./sample4.html")
+# #documentation
   
 
+# def sample_loop(req):
+
+#     names=["balaji","raju","surendra","aravind","basha","ramya","jayasri"]
+#     return render(req,"./sample4.html",context={"names":names})
 
 
 
 
+
+
+##loading existing tables 
+
+
+def emp_table(req):
+    # data=Employees.objects.aggregate(Count("salary"))
+    # data=Employees.objects.aggregate(Sum("salary"))
+    # data=Employees.objects.aggregate(Min("salary"))
+    # data=Employees.objects.aggregate(Max("salary"))
+    # data=Employees.objects.aggregate(Avg("salary"))
+    # print(data)
+    # return JsonResponse({"data": data})
+
+    data=Employees.objects.raw("select * from employees where city='%s' and name ='%s'",["hyderabad","1=1"])
+    data=list(data)
+    print(data)
+    return JsonResponse({"data": data})
+
+
+
+#Object Relational Mapping
 
 
 

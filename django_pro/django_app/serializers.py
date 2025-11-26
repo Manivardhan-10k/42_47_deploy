@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import CloudTable
+from .models import DjangoAppCloudtable
 
 class CloudTableSerializer(serializers.ModelSerializer):
     class Meta:
-        model=CloudTable
+        model=DjangoAppCloudtable
         fields="__all__"
 
