@@ -2,6 +2,7 @@ from operator import countOf
 from os import name
 from django import middleware
 from django.http import HttpResponse, JsonResponse
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .models import DjangoAppCloudtable , Employees
@@ -20,7 +21,9 @@ SECRET_KEY=settings.SECRET_KEY
 
 
 from django.db.models  import Sum,Count,Min ,Max,Avg
-
+from django.views.generic import ListView,DetailView,DeleteView
+from .models import Employees
+from django.urls import reverse_lazy
 
 
 # ------------------------ BASIC ROUTES ------------------------
@@ -317,7 +320,7 @@ from django.db.models  import Sum,Count,Min ,Max,Avg
 ##loading existing tables 
 
 
-def emp_table(req):
+# def emp_table(req):
     # data=Employees.objects.aggregate(Count("salary"))
     # data=Employees.objects.aggregate(Sum("salary"))
     # data=Employees.objects.aggregate(Min("salary"))
@@ -326,14 +329,55 @@ def emp_table(req):
     # print(data)
     # return JsonResponse({"data": data})
 
-    data=Employees.objects.raw("select * from employees where city='%s' and name ='%s'",["hyderabad","1=1"])
-    data=list(data)
-    print(data)
-    return JsonResponse({"data": data})
+    # data=Employees.objects.raw("select * from employees where city='%s'",['hyderabad'])
+    # data=list(data)
+    # print(data)
+    # return JsonResponse({"data": data})
 
 
 
 #Object Relational Mapping
+
+
+
+
+##CLASS BASED VIEW
+
+#BASIC VIEW
+class Sample(View):
+    def get(self,req):
+     return HttpResponse("sample view")
+
+#GENERIC VIEWS
+#C     R-> all/ single     U        D
+#list view
+
+
+class EmployeeList(ListView):
+   model=Employees
+   context_object_name="employee"
+   template_name="employee_list.html"
+   
+
+class SingleEmp(DetailView):
+   model=Employees
+   context_object_name="emp"
+   template_name="emp_details.html"
+
+
+
+class DelEmp(DeleteView):
+   model=Employees
+   context_object_name="emp"
+   template_name="delete_emp.html"
+   success_url=reverse_lazy("employee_list")
+   
+
+
+
+
+
+
 
 
 

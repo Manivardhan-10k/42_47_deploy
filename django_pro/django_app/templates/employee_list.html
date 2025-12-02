@@ -1,0 +1,27 @@
+{% extends "sample.html" %}
+
+
+ {%block content%}
+<h1>All Employees</h1>
+{% comment %} <a href="{% url 'employee_create' %}">Add Employee</a> {% endcomment %}
+<table border="1">
+    <tr>
+        <th>Name</th><th>City</th><th>Department</th><th>Salary</th>
+        <th>Actions</th>
+    </tr>
+    {% for emp in employee %}
+    <tr>
+        <td>{{ emp.name }}</td>
+        <td>{{ emp.city }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.salary }}</td>
+      <td>
+            <a href="{% url 'emp_details' emp.pk %}">View</a> |    </td>
+              {% comment %} <a href="{% url 'employee_update' emp.pk %}">Edit</a> |
+            <a href="{% url 'employee_delete' emp.pk %}">Delete</a>
+     {% endcomment %}
+    </tr>
+    {% endfor %}
+</table>
+
+{%endblock%}

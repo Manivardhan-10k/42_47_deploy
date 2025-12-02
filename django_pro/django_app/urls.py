@@ -1,5 +1,8 @@
 from django.urls import path
+from django.views import View
 from . import views
+
+from .views import Sample,EmployeeList,SingleEmp,DelEmp
 
 urlpatterns = [
     # path('', views.welcome),
@@ -22,5 +25,10 @@ urlpatterns = [
 
 
     ##emp table
-    path("getemp/",view=views.emp_table)
+    # path("getemp/",view=views.emp_table)
+    path("sample/",view=Sample.as_view()),
+    path("emp_list/",view=EmployeeList.as_view()),
+    path("emp/<int:pk>",view=SingleEmp.as_view(),name="emp_details"),
+    path("del_emp/<int:pk>",view=DelEmp.as_view())
+    ## params - route params
 ]

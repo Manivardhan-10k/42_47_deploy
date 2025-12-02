@@ -231,3 +231,29 @@ for name in arr:
  aggregations
  import django.db.models import  Count,Sum,Min,Max,Avg
 raw()
+
+
+
+
+aggregations "
+sql injection  -- select * from table where name="mani" or "1=1"
+placeholders     -- select * from table where name='%s',["mani"]
+templates:
+ how we display data (html files) 
+
+ json
+ http 
+ return render(".sample.html")
+
+
+
+
+
+FBV - function based views
+CBV - class based views
+
+
+models -class - inheritance(Models.model)
+
+
+
