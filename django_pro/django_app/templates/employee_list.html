@@ -16,10 +16,11 @@
         <td>{{ emp.department }}</td>
         <td>{{ emp.salary }}</td>
       <td>
-            <a href="{% url 'emp_details' emp.pk %}">View</a> |    </td>
-              {% comment %} <a href="{% url 'employee_update' emp.pk %}">Edit</a> |
-            <a href="{% url 'employee_delete' emp.pk %}">Delete</a>
-     {% endcomment %}
+            <a href="{% url 'emp_details' emp.pk %}">View</a> |   
+        <a href="{% url 'update_emp' emp.pk %}">Edit</a> |
+            <a href="{% url 'del_emp' emp.pk %}">Delete</a>
+             </td>
+   
     </tr>
     {% endfor %}
 </table>

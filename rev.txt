@@ -257,3 +257,61 @@ models -class - inheritance(Models.model)
 
 
 
+
+
+from django.views import View
+class ViewName(View):
+
+
+List View 
+
+Detailview 
+
+DeleteView 
+
+
+CreateView
+UpdateView
+
+
+
+forms
+modelform 
+
+
+{{form.as_p}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+create view 
+
+update view 
+
+
+django.forms 
+normal
+model form
+
+
+
+Pagination
+
+pages: 
+
+
+
+1000  - 5 sec 
+
+
+10 

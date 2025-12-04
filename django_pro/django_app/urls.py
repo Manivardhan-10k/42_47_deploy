@@ -2,7 +2,7 @@ from django.urls import path
 from django.views import View
 from . import views
 
-from .views import Sample,EmployeeList,SingleEmp,DelEmp
+from .views import Sample,EmployeeList,SingleEmp,DelEmp,CreateEmp,UpdateEmp
 
 urlpatterns = [
     # path('', views.welcome),
@@ -27,8 +27,13 @@ urlpatterns = [
     ##emp table
     # path("getemp/",view=views.emp_table)
     path("sample/",view=Sample.as_view()),
-    path("emp_list/",view=EmployeeList.as_view()),
-    path("emp/<int:pk>",view=SingleEmp.as_view(),name="emp_details"),
-    path("del_emp/<int:pk>",view=DelEmp.as_view())
+    path("emp_list/",view=EmployeeList.as_view(),name="employee_list"),
+    path("emp/<int:pk>/",view=SingleEmp.as_view(),name="emp_details"),
+    path("del_emp/<int:pk>/",view=DelEmp.as_view(),name="del_emp"),
     ## params - route params
+    path("reg_emp/",view=CreateEmp.as_view(),name="reg_emp"),
+    path("update_emp/<int:pk>/",view=UpdateEmp.as_view(),name="update_emp"),
+    path("emp_pages/",view=views.emp_pages)
+
+
 ]

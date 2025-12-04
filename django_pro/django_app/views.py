@@ -5,6 +5,10 @@ from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
+
+from .forms.emp_form import EmpForm
+
+
 from .models import DjangoAppCloudtable , Employees
 from .serializers import CloudTableSerializer
 import json
@@ -21,10 +25,10 @@ SECRET_KEY=settings.SECRET_KEY
 
 
 from django.db.models  import Sum,Count,Min ,Max,Avg
-from django.views.generic import ListView,DetailView,DeleteView
-from .models import Employees
+from django.views.generic import ListView,DetailView,DeleteView,CreateView,UpdateView
 from django.urls import reverse_lazy
 
+from django.core.paginator import Paginator
 
 # ------------------------ BASIC ROUTES ------------------------
 # @sample_decorator
@@ -367,15 +371,63 @@ class SingleEmp(DetailView):
 
 
 class DelEmp(DeleteView):
-   model=Employees
-   context_object_name="emp"
-   template_name="delete_emp.html"
+   model=Employees               #to select the table
+   context_object_name="emp"       # by what name we are refering the data/record to the template
+   template_name="delete_emp.html" # 
    success_url=reverse_lazy("employee_list")
    
 
 
+class CreateEmp(CreateView):
+   model=Employees
+   form_class=EmpForm
+   template_name="emp_reg.html"
+   success_url=reverse_lazy("employee_list")
 
 
+
+
+
+class UpdateEmp(UpdateView):
+   model=Employees
+   form_class=EmpForm
+   template_name="emp_reg.html"
+   success_url=reverse_lazy("employee_list")
+
+
+
+
+def emp_pages(request):
+   ##200 
+   ##10 
+   ##20 
+   ##18
+
+   all_data=Employees.objects.all().values()
+   itm_count=request.GET.get("items")
+
+   paginator = Paginator(all_data,itm_count)  # 10 items per page
+   page_number = request.GET.get("page", 1)   ## getting the current page number from request 
+   # print(page_number)
+   page_obj = paginator.get_page(page_number) ## to get the page number from the data
+   search=request.GET.get("prop")
+   print(search)
+
+   if search:
+        all_data = all_data.filter(city__icontains=search)
+
+   res_data={
+          "current_page": page_obj.number,
+           "page_size": paginator.per_page,
+           "total_pages": paginator.num_pages,
+           "total_items": paginator.count,
+            "has_next": page_obj.has_next(),
+            "has_previous":page_obj.has_previous(),
+            "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
+            "previous_page": page_obj.previous_page_number() if page_obj.has_previous() else None,
+            "result":list(page_obj)
+   }
+   return JsonResponse({"data":res_data})
 
 
 
