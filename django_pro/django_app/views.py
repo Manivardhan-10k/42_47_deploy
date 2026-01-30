@@ -37,15 +37,19 @@ from django.core.paginator import Paginator
 #     print("from the view")
 #     return res
 
-# def welcome(req):
-#     # return HttpResponse("hello")
-#     return render(req,"./sample.html")
+def welcome(req):
+    return HttpResponse("hello")
+   #  return render(req,"./sample.html")
 
 
-# @csrf_exempt
-# def sample(request):
-#     # print(request.COOKIES.get("name"),"from the view")
-#     # return JsonResponse({"msg":"welcome to app"})
+@csrf_exempt
+def sample(request,id):
+    print(request.headers)
+    name=request.COOKIES.get("name")
+
+   #  if not name:
+   #      return JsonResponse({"error":"name is not present"})
+    return JsonResponse({"msg":f"welcome to app {name} {id}"})
 
 #     name=request.POST.get("name")
 #     print(name)
@@ -348,86 +352,87 @@ from django.core.paginator import Paginator
 ##CLASS BASED VIEW
 
 #BASIC VIEW
-class Sample(View):
-    def get(self,req):
-     return HttpResponse("sample view")
+# class Sample(View):
+#     def get(self,req):
+#    #   return JsonResponse({"msg":"sample response"})
+#      return HttpResponse("sample view")
 
 #GENERIC VIEWS
 #C     R-> all/ single     U        D
 #list view
 
 
-class EmployeeList(ListView):
-   model=Employees
-   context_object_name="employee"
-   template_name="employee_list.html"
+# class EmployeeList(ListView):
+#    model=Employees
+#    context_object_name="employee"
+#    template_name="employee_list.html"
    
 
-class SingleEmp(DetailView):
-   model=Employees
-   context_object_name="emp"
-   template_name="emp_details.html"
+# class SingleEmp(DetailView):
+#    model=Employees
+#    context_object_name="emp"
+#    template_name="emp_details.html"
 
 
 
-class DelEmp(DeleteView):
-   model=Employees               #to select the table
-   context_object_name="emp"       # by what name we are refering the data/record to the template
-   template_name="delete_emp.html" # 
-   success_url=reverse_lazy("employee_list")
+# class DelEmp(DeleteView):
+#    model=Employees               #to select the table
+#    context_object_name="emp"       # by what name we are refering the data/record to the template
+#    template_name="delete_emp.html" # 
+#    success_url=reverse_lazy("employee_list")
    
 
 
-class CreateEmp(CreateView):
-   model=Employees
-   form_class=EmpForm
-   template_name="emp_reg.html"
-   success_url=reverse_lazy("employee_list")
+# class CreateEmp(CreateView):
+#    model=Employees
+#    form_class=EmpForm
+#    template_name="emp_reg.html"
+#    success_url=reverse_lazy("employee_list")
 
 
 
 
 
-class UpdateEmp(UpdateView):
-   model=Employees
-   form_class=EmpForm
-   template_name="emp_reg.html"
-   success_url=reverse_lazy("employee_list")
+# class UpdateEmp(UpdateView):
+#    model=Employees
+#    form_class=EmpForm
+#    template_name="emp_reg.html"
+#    success_url=reverse_lazy("employee_list")
 
 
 
 
-def emp_pages(request):
-   ##200 
-   ##10 
-   ##20 
-   ##18
+# def emp_pages(request):
+#    ##200 
+#    ##10 
+#    ##20 
+#    ##18
 
-   all_data=Employees.objects.all().values()
-   itm_count=request.GET.get("items")
+#    all_data=Employees.objects.all().values()
+#    itm_count=request.GET.get("items")
 
-   paginator = Paginator(all_data,itm_count)  # 10 items per page
-   page_number = request.GET.get("page", 1)   ## getting the current page number from request 
-   # print(page_number)
-   page_obj = paginator.get_page(page_number) ## to get the page number from the data
-   search=request.GET.get("prop")
-   print(search)
+#    paginator = Paginator(all_data,itm_count)  # 10 items per page
+#    page_number = request.GET.get("page", 1)   ## getting the current page number from request 
+#    # print(page_number)
+#    page_obj = paginator.get_page(page_number) ## to get the page number from the data
+#    search=request.GET.get("prop")
+#    print(search)
 
-   if search:
-        all_data = all_data.filter(city__icontains=search)
+#    if search:
+#         all_data = all_data.filter(city__icontains=search)
 
-   res_data={
-          "current_page": page_obj.number,
-           "page_size": paginator.per_page,
-           "total_pages": paginator.num_pages,
-           "total_items": paginator.count,
-            "has_next": page_obj.has_next(),
-            "has_previous":page_obj.has_previous(),
-            "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
-            "previous_page": page_obj.previous_page_number() if page_obj.has_previous() else None,
-            "result":list(page_obj)
-   }
-   return JsonResponse({"data":res_data})
+#    res_data={
+#           "current_page": page_obj.number,
+#            "page_size": paginator.per_page,
+#            "total_pages": paginator.num_pages,
+#            "total_items": paginator.count,
+#             "has_next": page_obj.has_next(),
+#             "has_previous":page_obj.has_previous(),
+#             "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
+#             "previous_page": page_obj.previous_page_number() if page_obj.has_previous() else None,
+#             "result":list(page_obj)
+#    }
+#    return JsonResponse({"data":res_data})
 
 
 
@@ -786,4 +791,3 @@ def emp_pages(request):
 
 
 # csrf 
-# @csrf_exempt
