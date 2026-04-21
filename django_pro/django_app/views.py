@@ -43,13 +43,13 @@ def welcome(req):
 
 
 @csrf_exempt
-def sample(request,id):
+def sample(request):
     print(request.headers)
     name=request.COOKIES.get("name")
 
    #  if not name:
    #      return JsonResponse({"error":"name is not present"})
-    return JsonResponse({"msg":f"welcome to app {name} {id}"})
+    return JsonResponse({"msg":f"hello all"})
 
 #     name=request.POST.get("name")
 #     print(name)
