@@ -38,7 +38,7 @@ from django.core.paginator import Paginator
 #     return res
 
 def welcome(req):
-    return HttpResponse("Namaste Swagatham")
+    return HttpResponse("Welcome Andhra!!")
    #  return render(req,"./sample.html")
 
 
